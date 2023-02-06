@@ -4,8 +4,13 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.TextIndexDefinition;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.TextCriteria;
+import org.springframework.data.mongodb.core.query.TextQuery;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +47,7 @@ public class ProjectController {
         List<People> saved = pepoleRepo.findAll();
         model.addAttribute("persons",saved);
         model.addAttribute("person",new People());
+
         return "home1";
     }
 
@@ -136,5 +142,14 @@ public class ProjectController {
         model.addAttribute("persons",pepoleRepo.findAll());
         return "home1";
     }
+
+
+    @GetMapping("/search")
+    public String textSearch(@ModelAttribute("person") People person, Model model){
+        model.addAttribute("queryResponse",pepoleRepo.findByText(person.getKeywords()));
+        model.addAttribute("persons",pepoleRepo.findAll());
+        return "home1";
+    }
+
 
 }

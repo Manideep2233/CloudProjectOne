@@ -85,13 +85,26 @@
 <br/>
 <hr/>
 <br/>
-
 <div class="d-flex justify-content-center">
+    <p>Search anything on fields Name, State, Keywords:</p>
+    <form class="form-group" th:action="@{/search}" th:object="${person}" method="get">
+        <label>Enter your Query:</label>
+        <input type="text" th:field="*{keywords}" placeholder="John"/>
+        <input type="submit" value="Search"/>
+    </form>
+</div>
+<hr/>
+<br/>
+<div class="d-flex justify-content-center">
+    <p>Want to Execute a Query? Try here: </p>
     <form class="form-group" th:action="@{/queryDB}" th:object="${person}" method="get">
         <label>Enter your Query:</label>
         <input type="text" th:field="*{name}" placeholder="{ 'name': 'Tavo' }"/>
         <input type="submit" value="Query"/>
     </form>
+</div>
+
+<div class="d-flex justify-content-center">
 
     <br/>
     <div class="d-flex justify-content-center" th:unless="${#lists.isEmpty(queryResponse)}">
