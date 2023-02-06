@@ -1,5 +1,9 @@
 package com.bdcc.assignment1;
 
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
@@ -16,9 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,6 +83,7 @@ public class ProjectController {
                                Model model){
         People updateP = pepoleRepo.findById(id).get();
         people.setPid(updateP.getPid());
+        people.setImageUrl("https://bdassignment1.blob.core.windows.net/test1/"+people.getPicture());
         pepoleRepo.save(people);
         model.addAttribute("person",updateP);
         return "redirect:/home";
@@ -151,5 +154,29 @@ public class ProjectController {
         return "home1";
     }
 
+    @GetMapping("/uploadImage")
+    public String getUploadForm() {
+        return "upload-form";
+    }
+
+
+    @PostMapping("/uploadImage")
+    public String uploadImage(@RequestParam("file") MultipartFile file, Model model) throws IOException {
+        String connectionString = "DefaultEndpointsProtocol=https;AccountName=bdassignment1;" +
+                "AccountKey=+8Nyv7UDrAcUgBsldRWw2+mcYIwaXCFn5sO6durQJ/RCwNNE7hFJW3Nx5b9UYuwGBAy4QCGwl/Vr+AStj8kJsw==;" +
+                "EndpointSuffix=core.windows.net";
+        String containerName = "test1";
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(connectionString).buildClient();
+        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
+        BlobClient blobClient = containerClient.getBlobClient(file.getOriginalFilename());
+        InputStream inputStream = new BufferedInputStream(file.getInputStream());
+        blobClient.upload(inputStream, file.getSize());
+        List<People> saved = pepoleRepo.findAll();
+
+        model.addAttribute("persons",saved);
+        model.addAttribute("person",new People());
+
+        return "home1";
+    }
 
 }
